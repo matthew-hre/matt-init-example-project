@@ -1,5 +1,5 @@
 {
-  description = ".";
+  description = "matt-init Example Project";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/release-24.11";

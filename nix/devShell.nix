@@ -8,7 +8,7 @@
   sqld,
 }:
 mkShell rec {
-  name = ".";
+  name = "matt-init-example-project";
 
   packages = [
     bash
