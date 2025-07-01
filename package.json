@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm run dev:db\" \"next dev --turbopack\"",
     "build": "next build",
-    "start": "docker-compose up -d && next start",
+    "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:migrate": "drizzle-kit migrate",
