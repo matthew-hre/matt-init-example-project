@@ -1,47 +1,47 @@
-import { int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export const user = sqliteTable("user", {
-  id: int().primaryKey({ autoIncrement: true }),
+export const user = pgTable("user", {
+  id: text().primaryKey(),
   name: text().notNull(),
   email: text().notNull().unique(),
-  emailVerified: integer({ mode: "boolean" }).$defaultFn(() => false).notNull(),
+  emailVerified: boolean().$defaultFn(() => false).notNull(),
   image: text(),
-  createdAt: integer().notNull(),
-  updatedAt: integer().notNull(),
+  createdAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
+  updatedAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
 });
 
-export const session = sqliteTable("session", {
-  id: int().primaryKey({ autoIncrement: true }),
-  expiresAt: integer().notNull(),
+export const session = pgTable("session", {
+  id: text().primaryKey(),
+  expiresAt: timestamp().notNull(),
   token: text().notNull().unique(),
-  createdAt: integer().notNull(),
-  updatedAt: integer().notNull(),
+  createdAt: timestamp().notNull(),
+  updatedAt: timestamp().notNull(),
   ipAddress: text(),
   userAgent: text(),
   userId: text().notNull().references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const account = sqliteTable("account", {
-  id: int().primaryKey({ autoIncrement: true }),
+export const account = pgTable("account", {
+  id: text().primaryKey(),
   accountId: text().notNull(),
   providerId: text().notNull(),
   userId: text().notNull().references(() => user.id, { onDelete: "cascade" }),
   accessToken: text(),
   refreshToken: text(),
   idToken: text(),
-  accessTokenExpiresAt: integer(),
-  refreshTokenExpiresAt: integer(),
+  accessTokenExpiresAt: timestamp(),
+  refreshTokenExpiresAt: timestamp(),
   scope: text(),
   password: text(),
-  createdAt: integer().notNull(),
-  updatedAt: integer().notNull(),
+  createdAt: timestamp().notNull(),
+  updatedAt: timestamp().notNull(),
 });
 
-export const verification = sqliteTable("verification", {
-  id: int().primaryKey({ autoIncrement: true }),
+export const verification = pgTable("verification", {
+  id: text().primaryKey(),
   identifier: text().notNull(),
   value: text().notNull(),
-  expiresAt: integer().notNull(),
-  createdAt: integer().notNull(),
-  updatedAt: integer().notNull(),
+  expiresAt: timestamp().notNull(),
+  createdAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()),
+  updatedAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()),
 });
