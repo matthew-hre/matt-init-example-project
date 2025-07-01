@@ -4,8 +4,7 @@
   bash,
   nodejs,
   pnpm,
-  turso-cli,
-  sqld,
+  docker-compose,
 }:
 mkShell rec {
   name = "matt-init-example-project";
@@ -18,7 +17,6 @@ mkShell rec {
     # Required for CI for format checking.
     alejandra
 
-    turso-cli
-    sqld
+    docker-compose
   ];
 }
