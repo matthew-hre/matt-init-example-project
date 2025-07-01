@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import MattInitBanner from "~/components/matt-init-banner";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { user } from "~/lib/db/schema";
@@ -33,7 +32,6 @@ export default async function DashboardPage() {
       flex h-screen flex-col items-center justify-center space-y-8
     `}
     >
-      <MattInitBanner />
       <p className="font-sans">
         Hey
         {" "}
