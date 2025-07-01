@@ -1,7 +1,7 @@
-import { int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export const user = sqliteTable("user", {
-  id: int().primaryKey({ autoIncrement: true }),
+export const user = pgTable("user", {
+  id: text().primaryKey(),
   name: text().notNull(),
   email: text().notNull().unique(),
   emailVerified: integer({ mode: "boolean" }).$defaultFn(() => false).notNull(),
