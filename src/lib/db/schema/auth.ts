@@ -9,7 +9,6 @@ export const user = pgTable("user", {
   createdAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
   updatedAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
 });
-
 export const session = pgTable("session", {
   id: text().primaryKey(),
   expiresAt: timestamp().notNull(),
@@ -20,7 +19,6 @@ export const session = pgTable("session", {
   userAgent: text(),
   userId: uuid().notNull().references(() => user.id, { onDelete: "cascade" }),
 });
-
 export const account = pgTable("account", {
   id: text().primaryKey(),
   accountId: text().notNull(),
@@ -46,6 +44,18 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()),
 });
 
+export const gameList = pgTable("game_list", {
+  id: integer("id").primaryKey().notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  tags: text("tags"),
+  isPublic: boolean("isPublic").notNull().default(false),
+  userId: integer("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+
+});
+
 export const game = pgTable("game", {
 
   id: integer("id").primaryKey().notNull(),
@@ -54,7 +64,7 @@ export const game = pgTable("game", {
   siteName: text("siteName"),
   tags: text("tags"),
   orderIndex: integer("orderIndex"),
-  // listId: integer("listId").references(() => list.id, { onDelete: "cascade" }), // assumes you have a list table
+  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }), // assumes you have a list table
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 
@@ -65,19 +75,7 @@ export const vote = pgTable("vote", {
   id: integer("id").primaryKey().notNull(),
   isUp: boolean("isUp").notNull(),
   userId: integer("userId").references(() => user.id, { onDelete: "cascade" }),
-  // listId: integer("listId").references(() => list.id, { onDelete: "cascade" }),
+  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }), // assumes you have a list table
   createdAt: timestamp("createdAt").defaultNow(),
-
-});
-
-export const gameList = pgTable("game_list", {
-  id: integer("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  tags: text("tags"),
-  isPublic: boolean("isPublic").notNull().default(false),
-  userId: integer("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
 
 });
