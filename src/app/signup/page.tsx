@@ -1,3 +1,5 @@
+import { Github } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -41,6 +43,25 @@ async function signupAction(formData: FormData) {
   });
 
   redirect("/signin");
+}
+
+async function signInWithGithubAction() {
+  "use server";
+
+  const { url } = await auth.api.signInSocial({
+    headers: await headers(),
+    body: {
+      provider: "github",
+      callbackURL: "/dashboard",
+    },
+  });
+
+  if (!url) {
+    redirect("/signup?error=Failed to sign in with GitHub");
+    return;
+  }
+
+  redirect(url);
 }
 
 export default async function SignupPage({
@@ -151,6 +172,27 @@ export default async function SignupPage({
               Sign Up
             </button>
 
+          </form>
+
+          <p className="text-foreground/60 mt-4 text-center text-sm">
+            --- or ---
+          </p>
+
+          <form className="mt-4" action={signInWithGithubAction}>
+            <button
+              type="submit"
+              className={`
+                flex h-12 w-full cursor-pointer items-center justify-center
+                rounded-full border border-solid border-black/[.08] px-5 text-sm
+                font-medium transition-colors
+                hover:border-transparent hover:bg-[#f2f2f2]
+                sm:text-base
+                dark:border-white/[.145] dark:hover:bg-[#1a1a1a]
+              `}
+            >
+              <Github className="mr-2 h-5 w-5" />
+              Sign In with Github
+            </button>
           </form>
 
           <div className="mt-6 text-center">
