@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: uuid().primaryKey().defaultRandom(),
@@ -42,40 +42,4 @@ export const verification = pgTable("verification", {
   expiresAt: timestamp().notNull(),
   createdAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()),
   updatedAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()),
-});
-
-export const gameList = pgTable("game_list", {
-  id: integer("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  tags: text("tags"),
-  isPublic: boolean("isPublic").notNull().default(false),
-  userId: integer("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
-
-});
-
-export const game = pgTable("game", {
-
-  id: integer("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-  url: text("url"),
-  siteName: text("siteName"),
-  tags: text("tags"),
-  orderIndex: integer("orderIndex"),
-  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
-
-});
-
-export const vote = pgTable("vote", {
-
-  id: integer("id").primaryKey().notNull(),
-  isUp: boolean("isUp").notNull(),
-  userId: integer("userId").references(() => user.id, { onDelete: "cascade" }),
-  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt").defaultNow(),
-
 });
