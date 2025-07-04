@@ -9,7 +9,6 @@ export const user = pgTable("user", {
   createdAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
   updatedAt: timestamp().$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
 });
-
 export const session = pgTable("session", {
   id: text().primaryKey(),
   expiresAt: timestamp().notNull(),
@@ -20,7 +19,6 @@ export const session = pgTable("session", {
   userAgent: text(),
   userId: uuid().notNull().references(() => user.id, { onDelete: "cascade" }),
 });
-
 export const account = pgTable("account", {
   id: text().primaryKey(),
   accountId: text().notNull(),
