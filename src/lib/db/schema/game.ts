@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { user } from ".";
 
@@ -8,7 +8,7 @@ export const gameList = pgTable("game_list", {
   description: text("description"),
   tags: text("tags"),
   isPublic: boolean("isPublic").notNull().default(false),
-  userId: integer("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+  userId: uuid("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 
@@ -32,7 +32,7 @@ export const vote = pgTable("vote", {
 
   id: integer("id").primaryKey().notNull(),
   isUp: boolean("isUp").notNull(),
-  userId: integer("userId").references(() => user.id, { onDelete: "cascade" }),
+  userId: uuid("userId").references(() => user.id, { onDelete: "cascade" }),
   listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").defaultNow(),
 
