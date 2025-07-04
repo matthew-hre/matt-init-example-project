@@ -18,12 +18,15 @@
     "db:wipe": "docker-compose down -v && pnpm run dev:db && pnpm run db:push"
   },
   "dependencies": {
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-slot": "^1.2.3",
     "better-auth": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "latest",
     "lucide-react": "^0.525.0",
     "next": "15.3.2",
+    "next-themes": "^0.4.6",
     "pg": "latest",
     "postgres": "latest",
     "react": "^19.0.0",
