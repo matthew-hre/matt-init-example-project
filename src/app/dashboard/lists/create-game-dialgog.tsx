@@ -13,6 +13,7 @@ export default function CreateGameDialog(
   { onCreate }: { onCreate: (formData: FormData) => void } = { onCreate: () => {} },
 ) {
   const [tags, setTags] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -21,20 +22,27 @@ export default function CreateGameDialog(
     formData.set("tags", tags.join(","));
 
     onCreate(formData);
-  };
 
-  const handleDialogClose = () => {
+    setIsOpen(false);
     setTags([]);
   };
 
+  const handleDialogClose = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setTags([]);
+    }
+  };
+
   return (
-    <Dialog onOpenChange={handleDialogClose}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <Button
           className={`
             bg-primary text-primary-foreground
             hover:bg-primary/90
           `}
+          onClick={() => setIsOpen(true)}
         >
           <Plus className="h-4 w-4" />
           <span className={`

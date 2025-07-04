@@ -1,43 +1,89 @@
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+
+import type { game } from "~/lib/db/schema";
+
 import { Button } from "~/components/ui/button";
+import { auth } from "~/lib/auth";
+import { db } from "~/lib/db";
+import { gameList } from "~/lib/db/schema";
 
 import CreateGameDialog from "./create-game-dialgog";
 
-type GameList = {
-  id: number;
-  name: string;
-  description: string;
-  tags: string;
-  games: Game[];
+type GameList = typeof gameList.$inferSelect & {
+  games: Array<Pick<typeof game.$inferSelect, "id" | "name" | "url">>;
 };
-
-type Game = {
-  id: number;
-  name: string;
-  url: string;
-};
-
-const mockGameLists: GameList[] = [
-  {
-    id: 1,
-    name: "Movie Games",
-    description: "My daily collection of movie-based games",
-    tags: "movies",
-    games: [
-      { id: 1, name: "Movie Grid", url: "https://moviegrid.io/" },
-      { id: 2, name: "Box Office Game", url: "https://boxofficega.me/" },
-    ],
-  },
-];
 
 async function createGameList(
   formData: FormData,
 ) {
   "use server";
 
-  console.log("Creating game list with data:", formData);
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const tags = formData.get("tags") as string;
+
+  if (!name || !description || !tags) {
+    throw new Error("All fields are required");
+  }
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be signed in to create a game list");
+  }
+
+  const userId = session.user.id;
+  try {
+    await db.insert(gameList).values({
+      name,
+      description,
+      tags,
+      userId,
+    });
+  }
+  catch (error) {
+    console.error("Error creating game list:", error);
+    throw new Error("Failed to create game list");
+  }
+
+  revalidatePath("/dashboard/lists");
 }
 
-export default function DashboardListsPage() {
+async function getGameLists() {
+  "use server";
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be signed in to view game lists");
+  }
+
+  const userId = session.user.id;
+
+  const lists = await db.query.gameList.findMany({
+    where: (gameList, { eq }) => eq(gameList.userId, userId),
+    with: {
+      games: {
+        columns: {
+          id: true,
+          name: true,
+          url: true,
+        },
+      },
+    },
+  });
+
+  return lists;
+}
+
+export default async function DashboardListsPage() {
+  const gameLists = await getGameLists();
+
   return (
     <div className="bg-background text-primary p-6">
       <div className="mx-auto max-w-4xl">
@@ -60,12 +106,12 @@ export default function DashboardListsPage() {
             lg:grid-cols-3
           `}
         >
-          {mockGameLists.map(list => (
+          {gameLists.map(list => (
             <GameListCard list={list} key={list.id} />
           ))}
         </div>
 
-        {mockGameLists.length === 0 && (
+        {gameLists.length === 0 && (
           <div className="py-12 text-center">
             <h3 className="mb-2 text-lg font-semibold">No game lists yet</h3>
             <p className="text-muted-foreground mb-4">
@@ -90,13 +136,13 @@ function GameListCard({ list }: { list: GameList }) {
       <div>
         <h3 className="mb-2 text-xl font-semibold">{list.name}</h3>
         <p className="text-muted-foreground line-clamp-2 text-sm">
-          {list.description}
+          {list.description || "No description provided"}
         </p>
       </div>
 
       <div>
         <div className="flex flex-wrap gap-2">
-          {list.tags.split(",").map(tag => (
+          {list.tags?.split(",").map(tag => (
             <span
               key={`${list.id}-${tag.trim()}`}
               className={`
@@ -106,7 +152,7 @@ function GameListCard({ list }: { list: GameList }) {
             >
               {tag.trim()}
             </span>
-          ))}
+          )) || <span className="text-muted-foreground text-xs">No tags</span>}
         </div>
       </div>
 
@@ -127,7 +173,7 @@ function GameListCard({ list }: { list: GameList }) {
             >
               <div className="text-sm font-medium">{game.name}</div>
               <div className="text-muted-foreground truncate text-xs">
-                {game.url}
+                {game.url || "No URL provided"}
               </div>
             </div>
           ))}
