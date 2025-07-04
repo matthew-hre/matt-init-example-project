@@ -18,7 +18,7 @@ export default async function Header() {
   return (
     <nav className={`
       bg-background/80 fixed top-0 flex w-full items-center justify-between p-4
-      text-white backdrop-blur-sm
+      backdrop-blur-sm
     `}
     >
       <Link className="text-lg font-bold" href="/">-dles List</Link>
