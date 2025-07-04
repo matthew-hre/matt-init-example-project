@@ -64,7 +64,7 @@ export const game = pgTable("game", {
   siteName: text("siteName"),
   tags: text("tags"),
   orderIndex: integer("orderIndex"),
-  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }), // assumes you have a list table
+  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 
@@ -75,7 +75,7 @@ export const vote = pgTable("vote", {
   id: integer("id").primaryKey().notNull(),
   isUp: boolean("isUp").notNull(),
   userId: integer("userId").references(() => user.id, { onDelete: "cascade" }),
-  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }), // assumes you have a list table
+  listId: integer("listId").references(() => gameList.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").defaultNow(),
 
 });
