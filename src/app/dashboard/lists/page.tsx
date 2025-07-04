@@ -1,6 +1,6 @@
-import { Plus } from "lucide-react";
-
 import { Button } from "~/components/ui/button";
+
+import CreateGameDialog from "./create-game-dialgog";
 
 type GameList = {
   id: number;
@@ -29,6 +29,14 @@ const mockGameLists: GameList[] = [
   },
 ];
 
+async function createGameList(
+  formData: FormData,
+) {
+  "use server";
+
+  console.log("Creating game list with data:", formData);
+}
+
 export default function DashboardListsPage() {
   return (
     <div className="bg-background text-primary p-6">
@@ -40,21 +48,9 @@ export default function DashboardListsPage() {
               Organize your favorite games
             </p>
           </div>
-          <Button
-            className={`
-              bg-primary text-primary-foreground
-              hover:bg-primary/90
-            `}
-          >
-            <Plus className="h-4 w-4" />
-            <span className={`
-              hidden
-              md:block
-            `}
-            >
-              New List
-            </span>
-          </Button>
+          <CreateGameDialog
+            onCreate={createGameList}
+          />
         </div>
 
         <div
