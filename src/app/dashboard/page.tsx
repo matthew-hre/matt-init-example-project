@@ -28,10 +28,7 @@ export default async function DashboardPage() {
   const userCount = await db.$count(user);
 
   return (
-    <div className={`
-      flex h-screen flex-col items-center justify-center space-y-8
-    `}
-    >
+    <div className="flex flex-col items-center justify-center space-y-8">
       <p className="font-sans">
         Hey
         {" "}
