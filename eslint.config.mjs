@@ -13,7 +13,8 @@ export default antfu(
       semi: true,
       quotes: "double",
     },
-    ignores: ["**/migrations/*", "next-env.d.ts"],
+    // ignoring everything in the ui folder, since shadcn doesn't know our linting rules
+    ignores: ["**/migrations/*", "next-env.d.ts", "**/components/ui/**/*"],
   },
   {
     plugins: {
