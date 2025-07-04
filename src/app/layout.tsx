@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
+import Header from "~/components/header";
 import { ThemeProvider } from "~/components/theme-provider";
-import { ThemeToggle } from "~/components/theme-toggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,11 +44,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Header />
           {children}
-          {/* TODO: Put this in a proper header / footer */}
-          <div className="fixed top-4 right-4">
-            <ThemeToggle />
-          </div>
         </ThemeProvider>
       </body>
     </html>
