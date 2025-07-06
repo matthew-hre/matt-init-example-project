@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { user } from "~/lib/db/schema";
+import { userSchema } from "~/lib/db/zod/user";
 
 async function signOut() {
   "use server";
@@ -24,8 +25,24 @@ async function updateUserProfile(formData: FormData) {
   if (!session?.user)
     return;
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const raw = {
+    name: formData.get("name") as string,
+    email: formData.get("email") as string,
+  };
+
+  const parsed = userSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    const message
+      = parsed.error.format().email?._errors?.[0]
+        || parsed.error.format().name?._errors?.[0]
+        || "Invalid input";
+
+    // 🔁 Redirect to /profile with error message in query string
+    redirect(`/profile?error=${encodeURIComponent(message)}`);
+  }
+
+  const { name, email } = parsed.data;
 
   await db
     .update(user)
