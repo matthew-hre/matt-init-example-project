@@ -26,17 +26,26 @@ export default async function Header() {
         {
           session
             ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  asChild
-                >
-                  <Link
-                    href="/dashboard"
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    asChild
                   >
-                    View your Dashboard
-                  </Link>
-                </Button>
+                    <Link href="/dashboard">
+                      View your Dashboard
+                    </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    asChild
+                  >
+                    <Link href="/profile">
+                      Profile
+                    </Link>
+                  </Button>
+                </>
               )
             : (
                 <GithubSigninButton />
