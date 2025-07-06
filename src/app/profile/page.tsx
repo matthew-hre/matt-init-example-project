@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -9,23 +11,42 @@ async function signOut() {
   "use server";
 
   const headersList = await headers();
-
-  await auth.api.signOut({
-    headers: headersList,
-  });
-
+  await auth.api.signOut({ headers: headersList });
   redirect("/");
+}
+
+async function updateUserProfile(formData: FormData) {
+  "use server";
+
+  const headersList = await headers();
+  const session = await auth.api.getSession({ headers: headersList });
+
+  if (!session?.user)
+    return;
+
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+
+  await db
+    .update(user)
+    .set({
+      name,
+      email,
+      updatedAt: new Date(),
+    })
+    .where(eq(user.id, session.user.id));
+
+  revalidatePath("/profile");
 }
 
 export default async function ProfilePage() {
   const headersList = await headers();
+  const session = (await auth.api.getSession({ headers: headersList }))!;
 
-  // middleware is guarding this route, so this assertion is safe unless the middleware fails
-  const session = (await auth.api.getSession({
-    headers: headersList,
-  }))!;
-
-  const userCount = await db.$count(user);
+  const [currentUser] = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, session.user.id));
 
   return (
     <div className={`
@@ -35,43 +56,54 @@ export default async function ProfilePage() {
       <p className="font-sans">
         Hey
         {" "}
-        <span className="font-bold">{session.user.name}</span>
-        Welcome to your profile!
+        <span className="font-bold">{currentUser.name}</span>
+        , welcome to your
+        profile!
       </p>
-      <div className={`
-        flex flex-col items-center justify-center gap-4
-        sm:flex-row
-      `}
+
+      <form
+        action={updateUserProfile}
+        className="flex w-full max-w-sm flex-col gap-4"
       >
-        <p className={`
-          bg-foreground text-background flex h-10 items-center justify-center
-          gap-2 rounded-full border border-solid border-transparent px-4 text-sm
-          font-medium transition-colors
-          sm:h-12 sm:w-auto sm:px-5 sm:text-base
-        `}
-        >
-          There are currently
-          {" "}
-          <span className="font-bold">{userCount}</span>
-          {" "}
-          users in the database.
-        </p>
+        <input
+          type="text"
+          name="name"
+          defaultValue={currentUser.name}
+          className="rounded border px-3 py-2"
+          placeholder="Name"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          defaultValue={currentUser.email}
+          className="rounded border px-3 py-2"
+          placeholder="Email"
+          required
+        />
         <button
-          type="button"
-          onClick={signOut}
+          type="submit"
           className={`
-            flex h-10 w-full cursor-pointer items-center justify-center
-            rounded-full border border-solid border-black/[.08] px-4 text-sm
-            font-medium transition-colors
-            hover:border-transparent hover:bg-[#f2f2f2]
-            sm:h-12 sm:w-auto sm:px-5 sm:text-base
-            md:w-[172px]
-            dark:border-white/[.145] dark:hover:bg-[#1a1a1a]
+            rounded bg-black px-4 py-2 text-white
+            hover:bg-gray-800
           `}
         >
-          Sign Out
+          Update Profile
         </button>
-      </div>
+      </form>
+
+      <button
+        type="button"
+        onClick={signOut}
+        className={`
+          mt-4 flex h-12 items-center justify-center rounded-full border px-5
+          text-sm font-medium transition
+          hover:bg-[#f2f2f2]
+          dark:hover:bg-[#1a1a1a]
+        `}
+      >
+        Sign Out
+      </button>
     </div>
   );
 }

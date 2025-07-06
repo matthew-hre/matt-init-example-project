@@ -42,7 +42,7 @@ export default async function Header() {
                     asChild
                   >
                     <Link href="/profile">
-                      Profile
+                      View Profile
                     </Link>
                   </Button>
                 </>
