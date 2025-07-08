@@ -254,12 +254,11 @@ export default function EditGameDialog({
                       onClick={handleDeleteClick}
                       disabled={isSubmitting || isDeleting}
                       className={`
-                        w-full
+                        mr-auto w-full
                         sm:w-auto
                       `}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete List
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
                   <div className={`
