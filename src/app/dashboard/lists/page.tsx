@@ -90,6 +90,7 @@ async function getGameLists() {
         },
       },
     },
+    orderBy: (gameList, { desc }) => desc(gameList.updatedAt),
   });
 
   return lists;
@@ -216,6 +217,17 @@ function GameListCard({ list }: { list: GameList }) {
       >
         View List
       </Button>
+      <span className="text-muted-foreground font-mono text-xs">
+        {
+          list.createdAt
+            ? `Created ${new Date(list.createdAt).toLocaleDateString()}`
+            : "No creation date"
+        }
+        {list.updatedAt
+          && (
+            `, Last updated: ${new Date(list.updatedAt).toLocaleDateString()}`
+          )}
+      </span>
     </div>
   );
 }
