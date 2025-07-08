@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { Button } from "~/components/ui/button";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { user } from "~/lib/db/schema";
@@ -103,29 +104,20 @@ export default async function ProfilePage() {
           placeholder="Email"
           required
         />
-        <button
-          type="submit"
-          className={`
-            rounded bg-black px-4 py-2 text-white
-            hover:bg-gray-800
-          `}
-        >
+        <Button type="submit">
           Update Profile
-        </button>
+        </Button>
       </form>
 
-      <button
+      <Button
         type="button"
         onClick={signOut}
-        className={`
-          mt-4 flex h-12 items-center justify-center rounded-full border px-5
-          text-sm font-medium transition
-          hover:bg-[#f2f2f2]
-          dark:hover:bg-[#1a1a1a]
-        `}
+        variant="outline"
+        size="lg"
+        className="mt-4"
       >
         Sign Out
-      </button>
+      </Button>
     </div>
   );
 }
