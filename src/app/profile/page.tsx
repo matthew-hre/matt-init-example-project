@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { user } from "~/lib/db/schema";
-import { userSchema } from "~/lib/db/zod/user";
+import { userSchema } from "~/lib/validation/user";
 
 async function signOut() {
   "use server";
