@@ -9,6 +9,7 @@ import { db } from "~/lib/db";
 import { gameList } from "~/lib/db/schema";
 
 import CreateGameDialog from "./create-game-dialgog";
+import { createGameListSchema } from "./validation";
 
 type GameList = typeof gameList.$inferSelect & {
   games: Array<Pick<typeof game.$inferSelect, "id" | "name" | "url">>;
@@ -19,13 +20,24 @@ async function createGameList(
 ) {
   "use server";
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const tags = formData.get("tags") as string;
+  const rawData = {
+    name: formData.get("name") as string,
+    description: formData.get("description") as string,
+    tags: formData.get("tags") as string,
+  };
 
-  if (!name || !description || !tags) {
-    throw new Error("All fields are required");
+  const result = createGameListSchema.safeParse(rawData);
+
+  if (!result.success) {
+    const errors = result.error.format();
+    const errorMessage = Object.values(errors)
+      .filter(error => typeof error === "object" && "_errors" in error)
+      .map(error => (error as any)._errors[0])
+      .join(", ");
+    throw new Error(errorMessage || "Invalid form data");
   }
+
+  const { name, description, tags } = result.data;
 
   const session = await auth.api.getSession({
     headers: await headers(),
