@@ -33,13 +33,18 @@ async function updateUserProfile(formData: FormData) {
   const parsed = userSchema.safeParse(raw);
 
   if (!parsed.success) {
-    const message
-      = parsed.error.format().email?._errors?.[0]
-        || parsed.error.format().name?._errors?.[0]
-        || "Invalid input";
+    const formattedErrors = parsed.error.format();
 
-    // 🔁 Redirect to /profile with error message in query string
-    redirect(`/profile?error=${encodeURIComponent(message)}`);
+    const errorMessages = [
+      ...(formattedErrors.email?._errors || []),
+      ...(formattedErrors.name?._errors || []),
+    ];
+
+    const combinedMessage = errorMessages.length > 0
+      ? errorMessages.join(" | ")
+      : "Invalid input";
+
+    redirect(`/profile?error=${encodeURIComponent(combinedMessage)}`);
   }
 
   const { name, email } = parsed.data;
