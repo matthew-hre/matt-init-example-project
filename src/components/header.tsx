@@ -41,7 +41,7 @@ export default async function Header() {
                     variant="outline"
                     asChild
                   >
-                    <Link href="/profile">
+                    <Link href="/dashboard/profile">
                       View Profile
                     </Link>
                   </Button>

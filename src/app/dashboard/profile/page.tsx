@@ -23,8 +23,9 @@ async function updateUserProfile(formData: FormData) {
   const headersList = await headers();
   const session = await auth.api.getSession({ headers: headersList });
 
-  if (!session?.user)
-    return;
+  if (!session?.user) {
+    redirect("/");
+  }
 
   const raw = {
     name: formData.get("name") as string,
@@ -45,7 +46,7 @@ async function updateUserProfile(formData: FormData) {
       ? errorMessages.join(" | ")
       : "Invalid input";
 
-    redirect(`/profile?error=${encodeURIComponent(combinedMessage)}`);
+    redirect(`/dashboad/profile?error=${encodeURIComponent(combinedMessage)}`);
   }
 
   const { name, email } = parsed.data;
@@ -59,7 +60,7 @@ async function updateUserProfile(formData: FormData) {
     })
     .where(eq(user.id, session.user.id));
 
-  revalidatePath("/profile");
+  revalidatePath("/dashboard/profile");
 }
 
 export default async function ProfilePage() {
