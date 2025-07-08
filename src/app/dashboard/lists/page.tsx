@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
@@ -9,6 +10,7 @@ import { db } from "~/lib/db";
 import { gameList } from "~/lib/db/schema";
 
 import CreateGameDialog from "./create-game-dialgog";
+import EditGameDialog from "./edit-game-dialog";
 import { createGameListSchema } from "./validation";
 
 type GameList = typeof gameList.$inferSelect & {
@@ -141,15 +143,23 @@ function GameListCard({ list }: { list: GameList }) {
     <div
       key={list.id}
       className={`
-        bg-card border-border space-y-4 rounded-lg border p-6 transition-shadow
+        bg-card border-border relative space-y-4 rounded-lg border p-6
+        transition-shadow
         hover:shadow-md
       `}
     >
-      <div>
-        <h3 className="mb-2 text-xl font-semibold">{list.name}</h3>
-        <p className="text-muted-foreground line-clamp-2 text-sm">
-          {list.description || "No description provided"}
-        </p>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h3 className="mb-2 text-xl font-semibold">{list.name}</h3>
+          <p className="text-muted-foreground line-clamp-2 text-sm">
+            {list.description || "No description provided"}
+          </p>
+        </div>
+        <EditGameDialog
+          list={list}
+          onEdit={editGameList}
+          onDelete={deleteGameList}
+        />
       </div>
 
       <div>
@@ -208,4 +218,112 @@ function GameListCard({ list }: { list: GameList }) {
       </Button>
     </div>
   );
+}
+
+async function editGameList(
+  formData: FormData,
+) {
+  "use server";
+
+  const rawData = {
+    id: formData.get("id") as string,
+    name: formData.get("name") as string,
+    description: formData.get("description") as string,
+    tags: formData.get("tags") as string,
+  };
+
+  const idNumber = Number.parseInt(rawData.id);
+  if (Number.isNaN(idNumber)) {
+    throw new TypeError("Invalid list ID");
+  }
+
+  const result = createGameListSchema.safeParse({
+    name: rawData.name,
+    description: rawData.description,
+    tags: rawData.tags,
+  });
+
+  if (!result.success) {
+    const errors = result.error.format();
+    const errorMessage = Object.values(errors)
+      .filter(error => typeof error === "object" && "_errors" in error)
+      .map(error => (error as any)._errors[0])
+      .join(", ");
+    throw new Error(errorMessage || "Invalid form data");
+  }
+
+  const { name, description, tags } = result.data;
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be signed in to edit a game list");
+  }
+
+  const userId = session.user.id;
+
+  try {
+    const existingList = await db.query.gameList.findFirst({
+      where: (gameList, { eq, and }) => and(
+        eq(gameList.id, idNumber),
+        eq(gameList.userId, userId),
+      ),
+    });
+
+    if (!existingList) {
+      throw new Error("Game list not found or you don't have permission to edit it");
+    }
+
+    await db.update(gameList)
+      .set({
+        name,
+        description,
+        tags,
+        updatedAt: new Date(),
+      })
+      .where(eq(gameList.id, idNumber));
+  }
+  catch (error) {
+    console.error("Error updating game list:", error);
+    throw new Error("Failed to update game list");
+  }
+
+  revalidatePath("/dashboard/lists");
+}
+
+async function deleteGameList(listId: number) {
+  "use server";
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be signed in to delete a game list");
+  }
+
+  const userId = session.user.id;
+
+  try {
+    const existingList = await db.query.gameList.findFirst({
+      where: (gameList, { eq, and }) => and(
+        eq(gameList.id, listId),
+        eq(gameList.userId, userId),
+      ),
+    });
+
+    if (!existingList) {
+      throw new Error("Game list not found or you don't have permission to delete it");
+    }
+
+    await db.delete(gameList).where(eq(gameList.id, listId));
+  }
+  catch (error) {
+    console.error("Error deleting game list:", error);
+    throw new Error("Failed to delete game list");
+  }
+
+  revalidatePath("/dashboard/lists");
 }
