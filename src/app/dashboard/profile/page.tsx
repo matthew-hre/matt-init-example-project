@@ -46,7 +46,7 @@ async function updateUserProfile(formData: FormData) {
       ? errorMessages.join(" | ")
       : "Invalid input";
 
-    redirect(`/dashboad/profile?error=${encodeURIComponent(combinedMessage)}`);
+    redirect(`/dashboard/profile?error=${encodeURIComponent(combinedMessage)}`);
   }
 
   const { name, email } = parsed.data;
