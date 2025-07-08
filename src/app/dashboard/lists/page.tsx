@@ -9,7 +9,7 @@ import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { gameList } from "~/lib/db/schema";
 
-import CreateGameDialog from "./create-game-dialgog";
+import CreateGameDialog from "./create-game-dialog";
 import EditGameDialog from "./edit-game-dialog";
 import { createGameListSchema } from "./validation";
 
