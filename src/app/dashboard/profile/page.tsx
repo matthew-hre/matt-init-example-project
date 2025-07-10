@@ -73,10 +73,19 @@ export default async function ProfilePage() {
     .where(eq(user.id, session.user.id));
 
   return (
-    <div className={`
-      flex h-screen flex-col items-center justify-center space-y-8
-    `}
+    <div
+      className={`
+        flex h-screen flex-col items-center justify-center space-y-8
+      `}
     >
+      {currentUser.image && (
+        <img
+          src={currentUser.image}
+          alt="GitHub Avatar"
+          className="w-24 h-24 rounded-full border mb-4"
+        />
+      )}
+
       <p className="font-sans">
         Hey
         {" "}
