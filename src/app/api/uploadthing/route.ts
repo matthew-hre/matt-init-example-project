@@ -1,7 +1,6 @@
-// src/app/api/uploadthing/route.ts
 import { createRouteHandler } from "uploadthing/server";
 
-import { ourFileRouter } from "./core";
+import { ourFileRouter } from "~/lib/uploadthing";
 
 const handler = createRouteHandler({
   router: ourFileRouter,

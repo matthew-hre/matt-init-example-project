@@ -1,6 +1,5 @@
 import type { FileRouter } from "uploadthing/server";
 
-// src/app/api/uploadthing/core.ts
 import { createUploadthing } from "uploadthing/server";
 
 const f = createUploadthing();
