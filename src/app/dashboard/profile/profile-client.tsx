@@ -73,7 +73,7 @@ export default function ProfileClient({ currentUser }: { currentUser: UserType }
         <Button type="submit">Update Profile</Button>
       </form>
 
-      <Button onClick={signOut}>
+      <Button onClick={signOut} variant="outline" size="lg" className="mt-4">
         Sign Out
       </Button>
     </div>
