@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// ✅ Allowed domains (no @ symbol)
 const allowedDomains = ["mtroyal.ca", "gmail.com", "yahoo.ca", "outlook.com"];
 
 export const userSchema = z.object({
@@ -17,6 +16,12 @@ export const userSchema = z.object({
     }, {
       message: "Email domain must be one of mtroyal.ca, gmail.com, yahoo.ca, or outlook.com",
     }),
+
+  image: z
+    .string()
+    .url("Must be a valid image URL")
+    .optional()
+    .nullable(),
 });
 
 export type UserInput = z.infer<typeof userSchema>;
