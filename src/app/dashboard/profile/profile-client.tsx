@@ -9,6 +9,7 @@ import type { user } from "~/lib/db/schema";
 import type { OurFileRouter } from "~/lib/uploadthing";
 
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { signOut, updateUserProfile } from "~/lib/actions/user-actions";
 
 type UserType = InferSelectModel<typeof user>;
@@ -53,7 +54,7 @@ export default function ProfileClient({ currentUser }: { currentUser: UserType }
           onUploadError={e => console.error("Upload error:", e)}
         />
 
-        <input
+        <Input
           type="text"
           name="name"
           defaultValue={currentUser.name}
@@ -61,7 +62,7 @@ export default function ProfileClient({ currentUser }: { currentUser: UserType }
           placeholder="Name"
           required
         />
-        <input
+        <Input
           type="email"
           name="email"
           defaultValue={currentUser.email}
