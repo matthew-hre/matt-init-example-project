@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
@@ -14,8 +15,8 @@ export default async function ProfilePage() {
 
   const session = await auth.api.getSession({ headers: headersList });
 
-  if (!session?.user?.id) {
-    return <p className="mt-10 text-center text-red-600">Error: User not found.</p>;
+  if (!session?.user) {
+    redirect("/");
   }
 
   const dbUser = await db.query.user.findFirst({
