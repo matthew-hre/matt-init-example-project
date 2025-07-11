@@ -8,8 +8,8 @@ import { useState } from "react";
 import type { user } from "~/lib/db/schema";
 import type { OurFileRouter } from "~/lib/uploadthing";
 
-import { signOut, updateUserProfile } from "~/app/actions/user-actions";
 import { Button } from "~/components/ui/button";
+import { signOut, updateUserProfile } from "~/lib/actions/user-actions";
 
 type UserType = InferSelectModel<typeof user>;
 
