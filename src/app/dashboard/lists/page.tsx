@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import Link from "next/link";
 
 import type { game } from "~/lib/db/schema";
 
@@ -117,8 +118,7 @@ export default async function DashboardListsPage() {
         <div
           className={`
             grid gap-6
-            md:grid-cols-2
-            lg:grid-cols-3
+            lg:grid-cols-2
           `}
         >
           {gameLists.map(list => (
@@ -214,8 +214,11 @@ function GameListCard({ list }: { list: GameList }) {
       <Button
         variant="outline"
         className="w-full text-sm"
+        asChild
       >
-        View List
+        <Link href={`/dashboard/lists/${list.id}`}>
+          View List
+        </Link>
       </Button>
       <span className="text-muted-foreground font-mono text-xs">
         {
