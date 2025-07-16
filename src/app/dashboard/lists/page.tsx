@@ -1,20 +1,20 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import Link from "next/link";
 
 import type { game } from "~/lib/db/schema";
 
+import CreateGameListDialog from "~/components/lists/create-game-list-dialog";
+import EditGameListDialog from "~/components/lists/edit-game-list-dialog";
 import { Button } from "~/components/ui/button";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { gameList } from "~/lib/db/schema";
-
-import CreateGameDialog from "./create-game-dialog";
-import EditGameDialog from "./edit-game-dialog";
-import { createGameListSchema } from "./validation";
+import { createGameListSchema } from "~/lib/validation";
 
 type GameList = typeof gameList.$inferSelect & {
-  games: Array<Pick<typeof game.$inferSelect, "id" | "name" | "url">>;
+  games: Array<Pick<typeof game.$inferSelect, "id" | "name">>;
 };
 
 async function createGameList(
@@ -109,7 +109,7 @@ export default async function DashboardListsPage() {
               Organize your favorite games
             </p>
           </div>
-          <CreateGameDialog
+          <CreateGameListDialog
             onCreate={createGameList}
           />
         </div>
@@ -117,8 +117,7 @@ export default async function DashboardListsPage() {
         <div
           className={`
             grid gap-6
-            md:grid-cols-2
-            lg:grid-cols-3
+            lg:grid-cols-2
           `}
         >
           {gameLists.map(list => (
@@ -152,11 +151,41 @@ function GameListCard({ list }: { list: GameList }) {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h3 className="mb-2 text-xl font-semibold">{list.name}</h3>
-          <p className="text-muted-foreground line-clamp-2 text-sm">
-            {list.description || "No description provided"}
-          </p>
+          <div className="group/gamedesc relative h-5 overflow-hidden">
+            <p
+              className={`
+                text-muted-foreground text-sm transition-transform duration-300
+                ${list.description ? "group-hover/gamedesc:-translate-y-6" : ""}
+              `}
+            >
+              {list.description || "No description provided"}
+            </p>
+            { list.createdAt
+              && (
+                <p
+                  className={`
+                    text-muted-foreground absolute top-0 left-0 w-full
+                    translate-y-6 truncate text-sm transition-transform
+                    duration-300
+                    group-hover/gamedesc:translate-y-0
+                  `}
+                >
+                  <span className="text-muted-foreground font-mono text-xs">
+                    {
+                      list.createdAt
+                        ? `Created ${new Date(list.createdAt).toLocaleDateString()}`
+                        : "No creation date"
+                    }
+                    {list.updatedAt
+                      && (
+                        `, Last updated: ${new Date(list.updatedAt).toLocaleDateString()}`
+                      )}
+                  </span>
+                </p>
+              )}
+          </div>
         </div>
-        <EditGameDialog
+        <EditGameListDialog
           list={list}
           onEdit={editGameList}
           onDelete={deleteGameList}
@@ -194,14 +223,11 @@ function GameListCard({ list }: { list: GameList }) {
                 last:border-b-0
               `}
             >
-              <div className="text-sm font-medium">{game.name}</div>
-              <div className="text-muted-foreground truncate text-xs">
-                {game.url || "No URL provided"}
-              </div>
+              <div className="text-md">{game.name}</div>
             </div>
           ))}
           {list.games.length > 3 && (
-            <div className="text-muted-foreground text-xs">
+            <div className="text-muted-foreground text-sm">
               +
               {list.games.length - 3}
               {" "}
@@ -214,20 +240,12 @@ function GameListCard({ list }: { list: GameList }) {
       <Button
         variant="outline"
         className="w-full text-sm"
+        asChild
       >
-        View List
+        <Link href={`/dashboard/lists/${list.id}`}>
+          View List
+        </Link>
       </Button>
-      <span className="text-muted-foreground font-mono text-xs">
-        {
-          list.createdAt
-            ? `Created ${new Date(list.createdAt).toLocaleDateString()}`
-            : "No creation date"
-        }
-        {list.updatedAt
-          && (
-            `, Last updated: ${new Date(list.updatedAt).toLocaleDateString()}`
-          )}
-      </span>
     </div>
   );
 }

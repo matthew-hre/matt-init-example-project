@@ -8,10 +8,9 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { InputTags } from "~/components/ui/tags-input";
+import { createGameListSchema } from "~/lib/validation";
 
-import { createGameListSchema } from "./validation";
-
-export default function CreateGameDialog(
+export default function CreateGameListDialog(
   { onCreate }: { onCreate: (formData: FormData) => void } = { onCreate: () => {} },
 ) {
   const [tags, setTags] = useState<string[]>([]);

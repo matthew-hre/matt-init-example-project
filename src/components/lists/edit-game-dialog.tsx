@@ -1,0 +1,164 @@
+"use client";
+
+import { Edit2 } from "lucide-react";
+import { useState } from "react";
+
+import type { game } from "~/lib/db/schema";
+
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { InputTags } from "~/components/ui/tags-input";
+import { createGameSchema } from "~/lib/validation";
+
+type Game = typeof game.$inferSelect;
+
+type EditGameDialogProps = {
+  game: Game;
+  updateGameAction: (formData: FormData) => Promise<void>;
+};
+
+export function EditGameDialog({ game, updateGameAction }: EditGameDialogProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [tags, setTags] = useState<string[]>(game.tags ? game.tags.split(",") : []);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrors({});
+
+    const formData = new FormData(event.currentTarget);
+    const rawData = {
+      name: formData.get("name") as string,
+      url: formData.get("url") as string,
+      siteName: formData.get("siteName") as string,
+      tags: tags.join(","),
+    };
+
+    const result = createGameSchema.safeParse(rawData);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        if (error.path[0]) {
+          fieldErrors[error.path[0] as string] = error.message;
+        }
+      });
+      setErrors(fieldErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    formData.set("name", result.data.name);
+    formData.set("url", result.data.url);
+    formData.set("siteName", result.data.siteName);
+    formData.set("tags", result.data.tags);
+
+    try {
+      await updateGameAction(formData);
+      setIsOpen(false);
+      setTags([]);
+      setErrors({});
+    }
+    catch (error) {
+      console.error("Error updating game:", error);
+      setErrors({ submit: error instanceof Error ? error.message : "Failed to update game" });
+    }
+    finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Edit2 className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Game</DialogTitle>
+          <DialogDescription>
+            Update the game details below.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          <input type="hidden" name="id" value={game.id} />
+          <input type="hidden" name="listId" value={game.listId || ""} />
+          <div className="grid gap-3">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              name="name"
+              defaultValue={game.name}
+              placeholder="Game name"
+              className={errors.name ? "border-red-500" : ""}
+              required
+            />
+            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+          </div>
+          <div className="grid gap-3">
+            <Label htmlFor="url">URL</Label>
+            <Input
+              id="url"
+              name="url"
+              type="url"
+              defaultValue={game.url || ""}
+              placeholder="https://example.com"
+              className={errors.url ? "border-red-500" : ""}
+            />
+            {errors.url && <p className="text-sm text-red-500">{errors.url}</p>}
+          </div>
+          <div className="grid gap-3">
+            <Label htmlFor="siteName">Site Name</Label>
+            <Input
+              id="siteName"
+              name="siteName"
+              defaultValue={game.siteName || ""}
+              placeholder="Platform or site name"
+              className={errors.siteName ? "border-red-500" : ""}
+            />
+            {errors.siteName && <p className="text-sm text-red-500">{errors.siteName}</p>}
+          </div>
+          <div className="grid gap-3">
+            <Label htmlFor="tags">Tags</Label>
+            <InputTags
+              id="tags"
+              name="tags"
+              value={tags}
+              onChange={setTags}
+              placeholder="e.g. tag1, tag2, tag3"
+              className={errors.tags ? "border-red-500" : ""}
+            />
+            {errors.tags && <p className="text-sm text-red-500">{errors.tags}</p>}
+          </div>
+          {errors.submit && (
+            <div className="rounded bg-red-50 p-3 text-sm text-red-500">
+              {errors.submit}
+            </div>
+          )}
+          <DialogFooter className="mt-6">
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
