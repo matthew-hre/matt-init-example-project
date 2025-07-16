@@ -22,12 +22,17 @@ import { CSS } from "@dnd-kit/utilities";
 import { ExternalLink, GripVertical, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "~/components/ui/button";
+import type { game, gameList } from "~/lib/db/schema";
 
-import type { Game, GameList } from "./types";
+import { Button } from "~/components/ui/button";
 
 import { AddGameDialog } from "./add-game-dialog";
 import { EditGameDialog } from "./edit-game-dialog";
+
+type Game = typeof game.$inferSelect;
+type GameList = typeof gameList.$inferSelect & {
+  games: Game[];
+};
 
 type GameListDetailProps = {
   gameList: GameList;

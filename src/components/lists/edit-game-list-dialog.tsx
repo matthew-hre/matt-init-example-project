@@ -3,20 +3,16 @@
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import type { gameList } from "~/lib/db/schema";
+
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { InputTags } from "~/components/ui/tags-input";
+import { createGameListSchema } from "~/lib/validation";
 
-import { createGameListSchema } from "./validation";
-
-type GameList = {
-  id: number;
-  name: string;
-  description: string | null;
-  tags: string | null;
-};
+type GameList = typeof gameList.$inferSelect;
 
 type EditGameDialogProps = {
   list: GameList;
@@ -25,7 +21,7 @@ type EditGameDialogProps = {
   showDelete?: boolean;
 };
 
-export default function EditGameDialog({
+export default function EditGameListDialog({
   list,
   onEdit,
   onDelete,

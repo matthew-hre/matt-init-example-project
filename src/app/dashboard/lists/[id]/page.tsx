@@ -8,12 +8,11 @@ import { Suspense } from "react";
 
 import type { gameList } from "~/lib/db/schema";
 
+import { GameListDetail } from "~/components/lists/game-list-detail";
 import { Button } from "~/components/ui/button";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { game } from "~/lib/db/schema";
-
-import { GameListDetail } from "./game-list-detail";
 
 type Game = typeof game.$inferSelect;
 type GameList = typeof gameList.$inferSelect & {

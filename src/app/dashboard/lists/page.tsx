@@ -5,14 +5,13 @@ import Link from "next/link";
 
 import type { game } from "~/lib/db/schema";
 
+import CreateGameListDialog from "~/components/lists/create-game-list-dialog";
+import EditGameListDialog from "~/components/lists/edit-game-list-dialog";
 import { Button } from "~/components/ui/button";
 import { auth } from "~/lib/auth";
 import { db } from "~/lib/db";
 import { gameList } from "~/lib/db/schema";
-
-import CreateGameDialog from "./create-game-dialog";
-import EditGameDialog from "./edit-game-dialog";
-import { createGameListSchema } from "./validation";
+import { createGameListSchema } from "~/lib/validation";
 
 type GameList = typeof gameList.$inferSelect & {
   games: Array<Pick<typeof game.$inferSelect, "id" | "name">>;
@@ -110,7 +109,7 @@ export default async function DashboardListsPage() {
               Organize your favorite games
             </p>
           </div>
-          <CreateGameDialog
+          <CreateGameListDialog
             onCreate={createGameList}
           />
         </div>
@@ -186,7 +185,7 @@ function GameListCard({ list }: { list: GameList }) {
               )}
           </div>
         </div>
-        <EditGameDialog
+        <EditGameListDialog
           list={list}
           onEdit={editGameList}
           onDelete={deleteGameList}
