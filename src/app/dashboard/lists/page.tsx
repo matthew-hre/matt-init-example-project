@@ -15,7 +15,7 @@ import EditGameDialog from "./edit-game-dialog";
 import { createGameListSchema } from "./validation";
 
 type GameList = typeof gameList.$inferSelect & {
-  games: Array<Pick<typeof game.$inferSelect, "id" | "name" | "url">>;
+  games: Array<Pick<typeof game.$inferSelect, "id" | "name">>;
 };
 
 async function createGameList(
@@ -152,9 +152,39 @@ function GameListCard({ list }: { list: GameList }) {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h3 className="mb-2 text-xl font-semibold">{list.name}</h3>
-          <p className="text-muted-foreground line-clamp-2 text-sm">
-            {list.description || "No description provided"}
-          </p>
+          <div className="group/gamedesc relative h-5 overflow-hidden">
+            <p
+              className={`
+                text-muted-foreground text-sm transition-transform duration-300
+                ${list.description ? "group-hover/gamedesc:-translate-y-6" : ""}
+              `}
+            >
+              {list.description || "No description provided"}
+            </p>
+            { list.createdAt
+              && (
+                <p
+                  className={`
+                    text-muted-foreground absolute top-0 left-0 w-full
+                    translate-y-6 truncate text-sm transition-transform
+                    duration-300
+                    group-hover/gamedesc:translate-y-0
+                  `}
+                >
+                  <span className="text-muted-foreground font-mono text-xs">
+                    {
+                      list.createdAt
+                        ? `Created ${new Date(list.createdAt).toLocaleDateString()}`
+                        : "No creation date"
+                    }
+                    {list.updatedAt
+                      && (
+                        `, Last updated: ${new Date(list.updatedAt).toLocaleDateString()}`
+                      )}
+                  </span>
+                </p>
+              )}
+          </div>
         </div>
         <EditGameDialog
           list={list}
@@ -194,14 +224,11 @@ function GameListCard({ list }: { list: GameList }) {
                 last:border-b-0
               `}
             >
-              <div className="text-sm font-medium">{game.name}</div>
-              <div className="text-muted-foreground truncate text-xs">
-                {game.url || "No URL provided"}
-              </div>
+              <div className="text-md">{game.name}</div>
             </div>
           ))}
           {list.games.length > 3 && (
-            <div className="text-muted-foreground text-xs">
+            <div className="text-muted-foreground text-sm">
               +
               {list.games.length - 3}
               {" "}
@@ -220,17 +247,6 @@ function GameListCard({ list }: { list: GameList }) {
           View List
         </Link>
       </Button>
-      <span className="text-muted-foreground font-mono text-xs">
-        {
-          list.createdAt
-            ? `Created ${new Date(list.createdAt).toLocaleDateString()}`
-            : "No creation date"
-        }
-        {list.updatedAt
-          && (
-            `, Last updated: ${new Date(list.updatedAt).toLocaleDateString()}`
-          )}
-      </span>
     </div>
   );
 }
